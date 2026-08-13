@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Karanlık Odada İnteraktif Işıklar & Gemini AI</title>
+  <title>Interactive Lights in a Dark Room</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
@@ -26,19 +28,19 @@
       touch-action: none;
     }
 
-    /* AI Üretimi Arka Plan Katmanı */
+    /* Dark Room */
     #room-bg {
       position: absolute;
       inset: 0;
       background-size: cover;
       background-position: center;
-      opacity: 0.25;
-      transition: opacity 0.8s ease, background-image 0.8s ease;
+      opacity: 0;
+      transition: opacity 0.8s ease;
       filter: brightness(0.4) contrast(1.2);
       z-index: 0;
     }
 
-    /* Dinamik Aydınlatma Katmanı */
+    /* Dynamic Lighting Layer */
     #ambient-light {
       position: absolute;
       inset: 0;
@@ -48,24 +50,65 @@
       z-index: 1;
     }
 
-    /* Alev & Titreşim Animasyonları */
+    /* Flame and Flicker Animations */
     @keyframes flicker {
-      0% { transform: scale(1) rotate(0deg); opacity: 0.95; }
-      20% { transform: scale(1.03, 0.98) rotate(-1deg); opacity: 1; }
-      40% { transform: scale(0.97, 1.02) rotate(1deg); opacity: 0.9; }
-      60% { transform: scale(1.02, 1.01) rotate(-0.5deg); opacity: 0.98; }
-      80% { transform: scale(0.99, 0.99) rotate(0.5deg); opacity: 0.93; }
-      100% { transform: scale(1) rotate(0deg); opacity: 0.95; }
+      0% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.95;
+      }
+
+      20% {
+        transform: scale(1.03, 0.98) rotate(-1deg);
+        opacity: 1;
+      }
+
+      40% {
+        transform: scale(0.97, 1.02) rotate(1deg);
+        opacity: 0.9;
+      }
+
+      60% {
+        transform: scale(1.02, 1.01) rotate(-0.5deg);
+        opacity: 0.98;
+      }
+
+      80% {
+        transform: scale(0.99, 0.99) rotate(0.5deg);
+        opacity: 0.93;
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.95;
+      }
     }
 
     @keyframes beamPulse {
-      0%, 100% { opacity: 0.85; transform: scaleX(1); }
-      50% { opacity: 0.98; transform: scaleX(1.04); }
+      0%,
+      100% {
+        opacity: 0.85;
+        transform: scaleX(1);
+      }
+
+      50% {
+        opacity: 0.98;
+        transform: scaleX(1.04);
+      }
     }
 
     @keyframes pulseGlow {
-      0%, 100% { filter: drop-shadow(0 0 15px rgba(255, 200, 80, 0.4)); }
-      50% { filter: drop-shadow(0 0 35px rgba(255, 180, 50, 0.8)); }
+      0%,
+      100% {
+        filter: drop-shadow(
+          0 0 15px rgba(255, 200, 80, 0.4)
+        );
+      }
+
+      50% {
+        filter: drop-shadow(
+          0 0 35px rgba(255, 180, 50, 0.8)
+        );
+      }
     }
 
     .flicker-active .flame-group {
@@ -82,7 +125,7 @@
       animation: pulseGlow 1.5s infinite ease-in-out;
     }
 
-    /* Kilit Alanı Stilleri */
+    /* Lock Target */
     .lock-zone {
       position: absolute;
       top: -100px;
@@ -90,16 +133,26 @@
       transform: translateX(-50%) scale(0.7);
       width: 68px;
       height: 68px;
+
       background: rgba(10, 10, 15, 0.85);
       border: 2px dashed rgba(255, 255, 255, 0.3);
       border-radius: 50%;
+
       display: flex;
       align-items: center;
       justify-content: center;
+
       font-size: 1.8rem;
       opacity: 0;
       pointer-events: none;
-      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+      transition: all 0.25s cubic-bezier(
+        0.175,
+        0.885,
+        0.32,
+        1.275
+      );
+
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
       z-index: 30;
       backdrop-filter: blur(8px);
@@ -114,27 +167,42 @@
       background: rgba(245, 158, 11, 0.3);
       border-color: #f59e0b;
       border-style: solid;
+
       transform: translateX(-50%) scale(1.3);
+
       box-shadow: 0 0 35px rgba(245, 158, 11, 0.7);
     }
 
-    /* Sabitlendi Rozeti */
+    /* Locked Badge */
     .locked-badge {
       position: absolute;
       bottom: -40px;
       left: 50%;
+
       transform: translateX(-50%) translateY(10px);
+
       background: #f59e0b;
       color: #000;
+
       font-size: 0.75rem;
       font-weight: 800;
       letter-spacing: 0.5px;
+
       padding: 5px 16px;
       border-radius: 20px;
+
       opacity: 0;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+      transition: all 0.3s cubic-bezier(
+        0.175,
+        0.885,
+        0.32,
+        1.275
+      );
+
       pointer-events: none;
       white-space: nowrap;
+
       box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5);
     }
 
@@ -143,890 +211,923 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Üst Menü Düğmeleri */
+    /* Navigation Buttons */
     .nav-btn {
       transition: all 0.25s ease;
     }
+
     .nav-btn.active {
       background-color: #f59e0b;
       color: #000000;
+
       box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
     }
+
     .nav-btn:not(.active):hover {
       background-color: rgba(255, 255, 255, 0.1);
       color: #ffffff;
     }
-
-    /* Custom Scrollbar for Modal */
-    .custom-scroll::-webkit-scrollbar {
-      width: 6px;
-    }
-    .custom-scroll::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: rgba(245, 158, 11, 0.4);
-      border-radius: 10px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb:hover {
-      background: rgba(245, 158, 11, 0.8);
-    }
   </style>
 </head>
+
 <body class="relative flex flex-col justify-between items-center select-none overflow-hidden">
 
-  <!-- AI Üretimi Arka Plan Katmanı -->
+  <!-- Dark Room Background -->
   <div id="room-bg"></div>
 
-  <!-- Karanlık Oda & Işık Katmanı -->
+  <!-- Ambient Lighting -->
   <div id="ambient-light"></div>
 
-  <!-- Üst Menü: Işık Kaynağı Değiştirme ve AI Modu -->
-  <header class="relative z-20 top-5 px-3 py-2 bg-neutral-900/90 backdrop-blur-md border border-neutral-800/80 rounded-full flex items-center gap-1 sm:gap-2 shadow-2xl max-w-[95vw] overflow-x-auto custom-scroll">
-    <button data-type="mum" class="nav-btn active flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-neutral-400 whitespace-nowrap">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 00-3 3c0 2 3 5 3 5s3-3 3-5a3 3 0 00-3-3zm-3 9v11h6V11H9z"/></svg>
-      <span>Mum</span>
-    </button>
-    <button data-type="fener" class="nav-btn flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-neutral-400 whitespace-nowrap">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10v3l-2 3v14H9V8L7 5V2zm2 2v1h6V4H9z"/></svg>
-      <span>Fener</span>
-    </button>
-    <button data-type="ampul" class="nav-btn flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-neutral-400 whitespace-nowrap">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 00-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 00-7-7zm-3 18a1 1 0 001 1h4a1 1 0 001-1v-1H9v1z"/></svg>
-      <span>Ampul</span>
-    </button>
-    <button data-type="kamp_atesi" class="nav-btn flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-neutral-400 whitespace-nowrap">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-1.5 3-4 5.5-4 9a4 4 0 008 0c0-3.5-2.5-6-4-9zm-8 18l16-2m-16 2l16 2"/></svg>
-      <span>Kamp Ateşi</span>
+  <!-- Top Navigation -->
+  <header
+    class="relative z-20 top-5 px-3 py-2 bg-neutral-900/90 backdrop-blur-md border border-neutral-800/80 rounded-full flex items-center gap-1 sm:gap-2 shadow-2xl max-w-[95vw] overflow-x-auto"
+  >
+
+    <!-- Candle -->
+    <button
+      data-type="candle"
+      class="nav-btn active flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-neutral-400 whitespace-nowrap"
+    >
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2a3 3 0 00-3 3c0 2 3 5 3 5s3-3 3-5a3 3 0 00-3-3zm-3 9v11h6V11H9z"/>
+      </svg>
+      <span>Candle</span>
     </button>
 
-    <div class="h-5 w-[1px] bg-neutral-700 mx-1"></div>
-
-    <!-- AI Modu Düğmesi -->
-    <button id="ai-toggle-btn" class="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-gradient-to-r from-amber-500 to-orange-600 text-black hover:brightness-110 shadow-lg shadow-amber-500/20 transition-all whitespace-nowrap">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-      <span>AI Sihirli Oda</span>
+    <!-- Lantern -->
+    <button
+      data-type="lantern"
+      class="nav-btn flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-neutral-400 whitespace-nowrap"
+    >
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7 2h10v3l-2 3v14H9V8L7 5V2zm2 2v1h6V4H9z"/>
+      </svg>
+      <span>Lantern</span>
     </button>
+
+    <!-- Light Bulb -->
+    <button
+      data-type="bulb"
+      class="nav-btn flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-neutral-400 whitespace-nowrap"
+    >
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2a7 7 0 00-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 00-7-7zm-3 18a1 1 0 001 1h4a1 1 0 001-1v-1H9v1z"/>
+      </svg>
+      <span>Bulb</span>
+    </button>
+
+    <!-- Campfire -->
+    <button
+      data-type="campfire"
+      class="nav-btn flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-neutral-400 whitespace-nowrap"
+    >
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2c-1.5 3-4 5.5-4 9a4 4 0 008 0c0-3.5-2.5-6-4-9zm-8 18l16-2m-16 2l16 2"/>
+      </svg>
+      <span>Campfire</span>
+    </button>
+
   </header>
 
-  <!-- Bilgi Paneli -->
-  <div id="info-banner" class="relative z-20 mt-8 px-6 py-2.5 rounded-full bg-neutral-900/70 border border-neutral-800/80 backdrop-blur-md text-xs sm:text-sm font-semibold text-neutral-400 text-center transition-all duration-300 shadow-lg">
-    Işığı yakmak için nesneye basılı tutun
+  <!-- Information Banner -->
+  <div
+    id="info-banner"
+    class="relative z-20 mt-8 px-6 py-2.5 rounded-full bg-neutral-900/70 border border-neutral-800/80 backdrop-blur-md text-xs sm:text-sm font-semibold text-neutral-400 text-center transition-all duration-300 shadow-lg"
+  >
+    Press and hold the object to turn on the light
   </div>
 
-  <!-- Ana Sahne / Oda Ortasındaki Işık Kaynağı -->
+  <!-- Main Light Object -->
   <main class="relative z-20 my-auto flex flex-col items-center justify-center">
-    
-    <!-- Kilit Hedef Alanı -->
+
+    <!-- Lock Target -->
     <div id="lock-zone" class="lock-zone">
       <span id="lock-icon">🔓</span>
     </div>
 
-    <!-- Aktif Obje Konteynırı -->
-    <div id="light-object" class="relative cursor-pointer p-6 rounded-3xl transition-transform duration-200 active:scale-95 flex items-center justify-center">
-      
-      <!-- SVG Görseller Alanı -->
-      <div id="graphic-container" class="glow-effect transition-all duration-300 opacity-40 filter grayscale">
-        
-        <!-- 1. MUM SVG -->
-        <svg id="svg-mum" viewBox="0 0 120 180" class="w-36 h-52 sm:w-44 sm:h-64">
+    <!-- Active Object -->
+    <div
+      id="light-object"
+      class="relative cursor-pointer p-6 rounded-3xl transition-transform duration-200 active:scale-95 flex items-center justify-center"
+    >
+
+      <!-- Graphics -->
+      <div
+        id="graphic-container"
+        class="glow-effect transition-all duration-300 opacity-40 filter grayscale"
+      >
+
+        <!-- Candle SVG -->
+        <svg
+          id="svg-candle"
+          viewBox="0 0 120 180"
+          class="w-36 h-52 sm:w-44 sm:h-64"
+        >
           <defs>
-            <linearGradient id="candleBodyGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#d1d5db" />
-              <stop offset="50%" stop-color="#f3f4f6" />
-              <stop offset="100%" stop-color="#9ca3af" />
+
+            <linearGradient
+              id="candleBodyGrad"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="0"
+            >
+              <stop offset="0%" stop-color="#d1d5db"/>
+              <stop offset="50%" stop-color="#f3f4f6"/>
+              <stop offset="100%" stop-color="#9ca3af"/>
             </linearGradient>
-            <radialGradient id="flameGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#fff" />
-              <stop offset="30%" stop-color="#f59e0b" />
-              <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
+
+            <radialGradient
+              id="flameGlow"
+              cx="50%"
+              cy="50%"
+              r="50%"
+            >
+              <stop offset="0%" stop-color="#fff"/>
+              <stop offset="30%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
             </radialGradient>
+
           </defs>
-          <!-- Mum Gövdesi -->
-          <rect x="42" y="75" width="36" height="90" rx="4" fill="url(#candleBodyGrad)" />
-          <!-- Eriyen Mum Damlaları -->
-          <path d="M42 85 Q40 100 44 110 Q48 100 48 85 Z" fill="#e5e7eb" />
-          <path d="M68 85 Q71 105 74 95 Q78 85 78 85 Z" fill="#e5e7eb" />
-          <!-- Fitil -->
-          <line x1="60" y1="75" x2="60" y2="60" stroke="#1f2937" stroke-width="3" stroke-linecap="round"/>
-          <!-- Alev Katmanları -->
+
+          <!-- Candle Body -->
+          <rect
+            x="42"
+            y="75"
+            width="36"
+            height="90"
+            rx="4"
+            fill="url(#candleBodyGrad)"
+          />
+
+          <!-- Wax Drips -->
+          <path
+            d="M42 85 Q40 100 44 110 Q48 100 48 85 Z"
+            fill="#e5e7eb"
+          />
+
+          <path
+            d="M68 85 Q71 105 74 95 Q78 85 78 85 Z"
+            fill="#e5e7eb"
+          />
+
+          <!-- Wick -->
+          <line
+            x1="60"
+            y1="75"
+            x2="60"
+            y2="60"
+            stroke="#1f2937"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+
+          <!-- Flame -->
           <g class="flame-group">
-            <path d="M60 12 C42 38 46 55 60 62 C74 55 78 38 60 12 Z" fill="#f97316" opacity="0.95"/>
-            <path d="M60 22 C48 40 50 52 60 58 C70 52 72 40 60 22 Z" fill="#fbbf24"/>
-            <path d="M60 35 C54 44 54 50 60 54 C66 50 66 44 60 35 Z" fill="#ffffff"/>
+
+            <path
+              d="M60 12 C42 38 46 55 60 62 C74 55 78 38 60 12 Z"
+              fill="#f97316"
+              opacity="0.95"
+            />
+
+            <path
+              d="M60 22 C48 40 50 52 60 58 C70 52 72 40 60 22 Z"
+              fill="#fbbf24"
+            />
+
+            <path
+              d="M60 35 C54 44 54 50 60 54 C66 50 66 44 60 35 Z"
+              fill="#ffffff"
+            />
+
           </g>
         </svg>
 
-        <!-- 2. FENER / MEŞALE SVG (Yukarı Bakan) -->
-        <svg id="svg-fener" viewBox="0 0 140 200" class="w-36 h-52 sm:w-44 sm:h-64 hidden">
+        <!-- Lantern SVG -->
+        <svg
+          id="svg-lantern"
+          viewBox="0 0 140 200"
+          class="w-36 h-52 sm:w-44 sm:h-64 hidden"
+        >
+
           <defs>
-            <linearGradient id="metalBody" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#334155" />
-              <stop offset="40%" stop-color="#64748b" />
-              <stop offset="100%" stop-color="#1e293b" />
+
+            <linearGradient
+              id="metalBody"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="0"
+            >
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="40%" stop-color="#64748b"/>
+              <stop offset="100%" stop-color="#1e293b"/>
             </linearGradient>
-            <linearGradient id="beamGrad" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stop-color="rgba(253, 224, 71, 0.8)" />
-              <stop offset="100%" stop-color="rgba(253, 224, 71, 0)" />
+
+            <linearGradient
+              id="beamGrad"
+              x1="0"
+              y1="1"
+              x2="0"
+              y2="0"
+            >
+              <stop
+                offset="0%"
+                stop-color="rgba(253,224,71,0.8)"
+              />
+
+              <stop
+                offset="100%"
+                stop-color="rgba(253,224,71,0)"
+              />
             </linearGradient>
+
           </defs>
-          <!-- Yukarı Çıkan Işık Hüzmesi -->
-          <polygon class="light-beam opacity-0 transition-opacity duration-300" points="70,40 10,0 130,0" fill="url(#beamGrad)" />
-          <!-- Fener Başlığı (Yukarı Bakıyor) -->
-          <path d="M40 70 L100 70 L110 40 L30 40 Z" fill="url(#metalBody)" stroke="#475569" stroke-width="2"/>
-          <ellipse cx="70" cy="40" rx="40" ry="8" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2" />
-          <ellipse class="lens-core" cx="70" cy="40" rx="32" ry="5" fill="#fef08a" opacity="0.6"/>
-          <!-- Fener Gövdesi -->
-          <rect x="52" y="70" width="36" height="100" rx="6" fill="url(#metalBody)" />
-          <!-- Tutma Tırtıkları -->
+
+          <!-- Light Beam -->
+          <polygon
+            class="light-beam opacity-0 transition-opacity duration-300"
+            points="70,40 10,0 130,0"
+            fill="url(#beamGrad)"
+          />
+
+          <!-- Lantern Head -->
+          <path
+            d="M40 70 L100 70 L110 40 L30 40 Z"
+            fill="url(#metalBody)"
+            stroke="#475569"
+            stroke-width="2"
+          />
+
+          <ellipse
+            cx="70"
+            cy="40"
+            rx="40"
+            ry="8"
+            fill="#e2e8f0"
+            stroke="#cbd5e1"
+            stroke-width="2"
+          />
+
+          <ellipse
+            class="lens-core"
+            cx="70"
+            cy="40"
+            rx="32"
+            ry="5"
+            fill="#fef08a"
+            opacity="0.6"
+          />
+
+          <!-- Lantern Body -->
+          <rect
+            x="52"
+            y="70"
+            width="36"
+            height="100"
+            rx="6"
+            fill="url(#metalBody)"
+          />
+
+          <!-- Grip Lines -->
           <line x1="52" y1="90" x2="88" y2="90" stroke="#1e293b" stroke-width="3"/>
           <line x1="52" y1="105" x2="88" y2="105" stroke="#1e293b" stroke-width="3"/>
           <line x1="52" y1="120" x2="88" y2="120" stroke="#1e293b" stroke-width="3"/>
           <line x1="52" y1="135" x2="88" y2="135" stroke="#1e293b" stroke-width="3"/>
-          <!-- Açma/Kapama Düğmesi -->
-          <rect x="63" y="148" width="14" height="18" rx="3" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.5"/>
-          <!-- Alt Kapak -->
-          <rect x="50" y="170" width="40" height="12" rx="3" fill="#0f172a" />
+
+          <!-- Power Button -->
+          <rect
+            x="63"
+            y="148"
+            width="14"
+            height="18"
+            rx="3"
+            fill="#ef4444"
+            stroke="#7f1d1d"
+            stroke-width="1.5"
+          />
+
+          <!-- Bottom Cover -->
+          <rect
+            x="50"
+            y="170"
+            width="40"
+            height="12"
+            rx="3"
+            fill="#0f172a"
+          />
+
         </svg>
 
-        <!-- 3. AMPUL SVG -->
-        <svg id="svg-ampul" viewBox="0 0 120 180" class="w-36 h-52 sm:w-44 sm:h-64 hidden">
+        <!-- Light Bulb SVG -->
+        <svg
+          id="svg-bulb"
+          viewBox="0 0 120 180"
+          class="w-36 h-52 sm:w-44 sm:h-64 hidden"
+        >
+
           <defs>
-            <radialGradient id="bulbGlass" cx="50%" cy="40%" r="50%">
-              <stop offset="0%" stop-color="rgba(255,255,255,0.8)" />
-              <stop offset="70%" stop-color="rgba(255,255,255,0.2)" />
-              <stop offset="100%" stop-color="rgba(255,255,255,0.05)" />
+
+            <radialGradient
+              id="bulbGlass"
+              cx="50%"
+              cy="40%"
+              r="50%"
+            >
+              <stop
+                offset="0%"
+                stop-color="rgba(255,255,255,0.8)"
+              />
+
+              <stop
+                offset="70%"
+                stop-color="rgba(255,255,255,0.2)"
+              />
+
+              <stop
+                offset="100%"
+                stop-color="rgba(255,255,255,0.05)"
+              />
             </radialGradient>
+
           </defs>
-          <!-- Cam Balon -->
-          <path d="M60 20 C32 20 22 48 34 78 C40 92 46 102 46 115 L74 115 C74 102 80 92 86 78 C98 48 88 20 60 20 Z" fill="url(#bulbGlass)" stroke="rgba(255,255,255,0.4)" stroke-width="2.5"/>
-          <!-- İç Filaman Telleri -->
-          <path class="flame-group" d="M52 115 L52 75 L57 65 L60 70 L63 65 L68 75 L68 115" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          <!-- Metal Duy -->
-          <path d="M46 115 L74 115 L72 123 L48 123 Z" fill="#94a3b8" stroke="#64748b" />
-          <path d="M47 123 L73 123 L71 131 L49 131 Z" fill="#64748b" stroke="#475569" />
-          <path d="M48 131 L72 131 L70 139 L50 139 Z" fill="#475569" stroke="#334155" />
-          <!-- Temas Noktası -->
-          <path d="M52 139 L68 139 Q60 148 52 139 Z" fill="#1e293b" />
+
+          <!-- Glass -->
+          <path
+            d="M60 20 C32 20 22 48 34 78 C40 92 46 102 46 115 L74 115 C74 102 80 92 86 78 C98 48 88 20 60 20 Z"
+            fill="url(#bulbGlass)"
+            stroke="rgba(255,255,255,0.4)"
+            stroke-width="2.5"
+          />
+
+          <!-- Filament -->
+          <path
+            class="flame-group"
+            d="M52 115 L52 75 L57 65 L60 70 L63 65 L68 75 L68 115"
+            fill="none"
+            stroke="#f59e0b"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+          <!-- Metal Base -->
+          <path
+            d="M46 115 L74 115 L72 123 L48 123 Z"
+            fill="#94a3b8"
+            stroke="#64748b"
+          />
+
+          <path
+            d="M47 123 L73 123 L71 131 L49 131 Z"
+            fill="#64748b"
+            stroke="#475569"
+          />
+
+          <path
+            d="M48 131 L72 131 L70 139 L50 139 Z"
+            fill="#475569"
+            stroke="#334155"
+          />
+
+          <!-- Contact Point -->
+          <path
+            d="M52 139 L68 139 Q60 148 52 139 Z"
+            fill="#1e293b"
+          />
+
         </svg>
 
-        <!-- 4. KAMP ATEŞİ SVG (Odunlu) -->
-        <svg id="svg-kamp_atesi" viewBox="0 0 160 180" class="w-44 h-52 sm:w-56 sm:h-64 hidden">
+        <!-- Campfire SVG -->
+        <svg
+          id="svg-campfire"
+          viewBox="0 0 160 180"
+          class="w-44 h-52 sm:w-56 sm:h-64 hidden"
+        >
+
           <defs>
-            <linearGradient id="logGrad1" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#78350f" />
-              <stop offset="100%" stop-color="#451a03" />
+
+            <linearGradient
+              id="logGrad1"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="1"
+            >
+              <stop offset="0%" stop-color="#78350f"/>
+              <stop offset="100%" stop-color="#451a03"/>
             </linearGradient>
-            <linearGradient id="logGrad2" x1="1" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#92400e" />
-              <stop offset="100%" stop-color="#3a1200" />
+
+            <linearGradient
+              id="logGrad2"
+              x1="1"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop offset="0%" stop-color="#92400e"/>
+              <stop offset="100%" stop-color="#3a1200"/>
             </linearGradient>
+
           </defs>
-          
-          <!-- Odun Yığını -->
+
+          <!-- Wooden Logs -->
           <g id="wooden-logs">
-            <rect x="25" y="132" width="110" height="22" rx="10" fill="url(#logGrad1)" transform="rotate(-15 80 143)" stroke="#270e03" stroke-width="2"/>
-            <ellipse cx="28" cy="148" rx="5" ry="10" fill="#b45309" transform="rotate(-15 80 143)"/>
-            
-            <rect x="25" y="132" width="110" height="22" rx="10" fill="url(#logGrad2)" transform="rotate(15 80 143)" stroke="#270e03" stroke-width="2"/>
-            <ellipse cx="132" cy="148" rx="5" ry="10" fill="#b45309" transform="rotate(15 80 143)"/>
 
-            <rect x="30" y="146" width="100" height="24" rx="11" fill="#78350f" stroke="#1c0a02" stroke-width="2.5"/>
-            <ellipse cx="38" cy="158" rx="6" ry="10" fill="#d97706" />
-            <ellipse cx="38" cy="158" rx="3" ry="5" fill="#78350f" />
-            <ellipse cx="122" cy="158" rx="6" ry="10" fill="#d97706" />
-            <ellipse cx="122" cy="158" rx="3" ry="5" fill="#78350f" />
+            <rect
+              x="25"
+              y="132"
+              width="110"
+              height="22"
+              rx="10"
+              fill="url(#logGrad1)"
+              transform="rotate(-15 80 143)"
+              stroke="#270e03"
+              stroke-width="2"
+            />
+
+            <ellipse
+              cx="28"
+              cy="148"
+              rx="5"
+              ry="10"
+              fill="#b45309"
+              transform="rotate(-15 80 143)"
+            />
+
+            <rect
+              x="25"
+              y="132"
+              width="110"
+              height="22"
+              rx="10"
+              fill="url(#logGrad2)"
+              transform="rotate(15 80 143)"
+              stroke="#270e03"
+              stroke-width="2"
+            />
+
+            <ellipse
+              cx="132"
+              cy="148"
+              rx="5"
+              ry="10"
+              fill="#b45309"
+              transform="rotate(15 80 143)"
+            />
+
+            <rect
+              x="30"
+              y="146"
+              width="100"
+              height="24"
+              rx="11"
+              fill="#78350f"
+              stroke="#1c0a02"
+              stroke-width="2.5"
+            />
+
+            <ellipse
+              cx="38"
+              cy="158"
+              rx="6"
+              ry="10"
+              fill="#d97706"
+            />
+
+            <ellipse
+              cx="38"
+              cy="158"
+              rx="3"
+              ry="5"
+              fill="#78350f"
+            />
+
+            <ellipse
+              cx="122"
+              cy="158"
+              rx="6"
+              ry="10"
+              fill="#d97706"
+            />
+
+            <ellipse
+              cx="122"
+              cy="158"
+              rx="3"
+              ry="5"
+              fill="#78350f"
+            />
+
           </g>
 
-          <ellipse cx="80" cy="142" rx="35" ry="8" fill="#ea580c" opacity="0.6" filter="blur(3px)"/>
+          <!-- Ember Glow -->
+          <ellipse
+            cx="80"
+            cy="142"
+            rx="35"
+            ry="8"
+            fill="#ea580c"
+            opacity="0.6"
+            filter="blur(3px)"
+          />
 
-          <!-- Alev Katmanları -->
+          <!-- Fire -->
           <g class="flame-group">
-            <path d="M80 18 C48 60 38 98 44 132 C60 144 100 144 116 132 C122 98 112 60 80 18 Z" fill="#dc2626" opacity="0.9"/>
-            <path d="M80 38 C58 72 50 102 56 128 C68 138 92 138 104 128 C110 102 102 72 80 38 Z" fill="#f97316"/>
-            <path d="M80 62 C68 88 62 108 66 124 C72 130 88 130 94 124 C98 108 92 88 80 62 Z" fill="#fbbf24"/>
-            <path d="M80 88 C74 102 72 114 74 120 C77 124 83 124 86 120 C88 114 86 102 80 88 Z" fill="#ffffff"/>
+
+            <path
+              d="M80 18 C48 60 38 98 44 132 C60 144 100 144 116 132 C122 98 112 60 80 18 Z"
+              fill="#dc2626"
+              opacity="0.9"
+            />
+
+            <path
+              d="M80 38 C58 72 50 102 56 128 C68 138 92 138 104 128 C110 102 102 72 80 38 Z"
+              fill="#f97316"
+            />
+
+            <path
+              d="M80 62 C68 88 62 108 66 124 C72 130 88 130 94 124 C98 108 92 88 80 62 Z"
+              fill="#fbbf24"
+            />
+
+            <path
+              d="M80 88 C74 102 72 114 74 120 C77 124 83 124 86 120 C88 114 86 102 80 88 Z"
+              fill="#ffffff"
+            />
+
           </g>
+
         </svg>
 
       </div>
-      
-      <!-- Sabitlendi Etiketi -->
+
+      <!-- Locked Badge -->
       <div id="locked-badge" class="locked-badge">
-        SABİTLENDİ (🔒)
+        LOCKED 🔒
       </div>
+
     </div>
 
   </main>
 
-  <!-- AI Özellikleri Yan Paneli (Modal) -->
-  <div id="ai-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden transition-opacity duration-300">
-    <div class="relative w-full max-w-xl bg-neutral-900 border border-neutral-800 rounded-3xl p-6 shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-4 border-b border-neutral-800">
-        <div class="flex items-center gap-2.5">
-          <div class="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl text-black font-bold">
-            ✨
-          </div>
-          <div>
-            <h2 class="text-base sm:text-lg font-bold text-white">Gemini AI Sihirli Oda</h2>
-            <p class="text-xs text-neutral-400">Arka plan üretimi, gece hikayeleri ve seslendirme</p>
-          </div>
-        </div>
-        <button id="close-ai-modal" class="p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-all">
-          ✕
-        </button>
-      </div>
-
-      <!-- Modal Tab Buttons -->
-      <div class="flex gap-2 my-4 bg-neutral-950 p-1 rounded-xl border border-neutral-800/80">
-        <button id="tab-bg-btn" class="flex-1 py-2 text-xs font-bold rounded-lg bg-amber-500 text-black transition-all">
-          🎨 AI Arka Plan
-        </button>
-        <button id="tab-story-btn" class="flex-1 py-2 text-xs font-bold rounded-lg text-neutral-400 hover:text-white transition-all">
-          📖 Gece Hikayesi
-        </button>
-        <button id="tab-oracle-btn" class="flex-1 py-2 text-xs font-bold rounded-lg text-neutral-400 hover:text-white transition-all">
-          🔮 Işık Kahini
-        </button>
-      </div>
-
-      <!-- Tab Content Area -->
-      <div class="flex-1 overflow-y-auto custom-scroll pr-1 space-y-4 text-xs sm:text-sm">
-        
-        <!-- Tab 1: AI Arka Plan Oluşturucu (Imagen API) -->
-        <div id="tab-bg-content" class="space-y-4">
-          <p class="text-neutral-300 leading-relaxed">
-            Gemini Visual AI (<code class="text-amber-400">imagen-4.0-generate-001</code>) ile bu karanlık odaya özel atmosferik bir arka plan üretin:
-          </p>
-          
-          <div class="grid grid-cols-2 gap-2">
-            <button class="bg-preset-btn text-left p-3 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/50 hover:border-amber-500/50 transition-all" data-prompt="A dark moody medieval wooden cabin interior with stone fireplace, dim shadows, hyperrealistic cinematic dark background">
-              <span class="block font-bold text-amber-400">🪵 Ahşap Dağ Evi</span>
-              <span class="text-[10px] text-neutral-400">Sıcak, loş ahşap kulübe</span>
-            </button>
-
-            <button class="bg-preset-btn text-left p-3 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/50 hover:border-amber-500/50 transition-all" data-prompt="A dark spooky haunted castle stone dungeon hall with mysterious shadows and ancient stone arches, dark atmospheric scene">
-              <span class="block font-bold text-amber-400">🏰 Tarihi Şato</span>
-              <span class="text-[10px] text-neutral-400">Karanlık taş zindan</span>
-            </button>
-
-            <button class="bg-preset-btn text-left p-3 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/50 hover:border-amber-500/50 transition-all" data-prompt="A dark cyberpunk neon city alleyway at rainy night, dark futuristic shadows, moody atmosphere">
-              <span class="block font-bold text-amber-400">🌌 Siberpunk Sokak</span>
-              <span class="text-[10px] text-neutral-400">Gecenin içinde loş şehir</span>
-            </button>
-
-            <button class="bg-preset-btn text-left p-3 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/50 hover:border-amber-500/50 transition-all" data-prompt="A magical fantasy crystal cave dimly lit, dark glowing ambient crystals, mysterious subterranean cavern background">
-              <span class="block font-bold text-amber-400">🔮 Büyülü Mağara</span>
-              <span class="text-[10px] text-neutral-400">Gizemli yer altı mağarası</span>
-            </button>
-          </div>
-
-          <div class="pt-2">
-            <label class="block text-xs font-semibold text-neutral-400 mb-1">Veya Özel Arka Plan Tarifi Yazın:</label>
-            <div class="flex gap-2">
-              <input id="custom-bg-input" type="text" placeholder="Örn: Fırtınalı denizde bir korsan gemisi kaptan köşkünün içi..." class="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500" />
-              <button id="generate-bg-btn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 whitespace-nowrap">
-                <span>Oluştur</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 2: Gece Hikayesi & TTS (Gemini Flash + TTS API) -->
-        <div id="tab-story-content" class="space-y-4 hidden">
-          <div class="bg-neutral-950 border border-neutral-800 p-4 rounded-2xl space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                <span>🔥</span> Aktif Temalı Ateş Başı Masalı
-              </span>
-              <button id="generate-story-btn" class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1">
-                <span>⚡ Yeni Hikaye Üret</span>
-              </button>
-            </div>
-
-            <div id="story-display-area" class="text-neutral-300 leading-relaxed text-xs sm:text-sm min-h-[100px] flex items-center justify-center italic text-neutral-500 border border-dashed border-neutral-800 rounded-xl p-3">
-              Işık kaynağına uygun bir gece hikayesi dinlemek için "Yeni Hikaye Üret" butonuna basın...
-            </div>
-
-            <!-- Audio Player Bar -->
-            <div id="tts-controls" class="flex items-center justify-between pt-2 border-t border-neutral-800 hidden">
-              <div class="flex items-center gap-2">
-                <button id="play-tts-btn" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 text-black font-bold rounded-lg text-xs flex items-center gap-1.5">
-                  <span id="play-icon">▶</span>
-                  <span id="play-text">Sesli Dinle (Gemini TTS)</span>
-                </button>
-                <span id="tts-status" class="text-[10px] text-neutral-400"></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 3: Işık Kahini (Gemini Q&A) -->
-        <div id="tab-oracle-btn-content" class="space-y-3 hidden">
-          <p class="text-neutral-300 text-xs">
-            Işığın fiziği, tarihi, ateşin icadı veya karanlığın gizemleri hakkında Gemini AI'a soru sorun:
-          </p>
-
-          <div id="chat-history" class="space-y-2 max-h-[160px] overflow-y-auto custom-scroll p-2 bg-neutral-950 rounded-xl border border-neutral-800 text-xs">
-            <div class="text-amber-400 font-medium">🔮 Işık Kahini hazır. Bir soru sorun...</div>
-          </div>
-
-          <div class="flex gap-2 pt-1">
-            <input id="oracle-input" type="text" placeholder="Örn: Alev neden yukarı doğru uzar?" class="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500" />
-            <button id="ask-oracle-btn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl text-xs transition-all">
-              Sor
-            </button>
-          </div>
-        </div>
-
-        <!-- Loading Spinner Indicator -->
-        <div id="ai-loading" class="hidden flex items-center justify-center p-4 gap-3 bg-neutral-950/80 border border-amber-500/30 rounded-xl text-amber-400 text-xs font-semibold">
-          <svg class="animate-spin h-5 w-5 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span id="ai-loading-text">Gemini yanıt hazırlıyor...</span>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Alt Bilgilendirme -->
-  <footer class="relative z-20 bottom-5 text-neutral-500 text-xs text-center font-medium">
-    Işığı söndürmek için ekranda boş bir yere tıklayın
+  <!-- Bottom Information -->
+  <footer
+    class="relative z-20 bottom-5 text-neutral-500 text-xs text-center font-medium"
+  >
+    Click anywhere outside the object to turn the light off
   </footer>
 
   <script>
-    // Işık Kaynakları Yapılandırması
+
+    /* Light Source Configuration */
     const LIGHT_CONFIGS = {
-      mum: {
-        name: 'Mum',
+
+      candle: {
+        name: 'Candle',
         color: 'rgba(245, 158, 11, 0.88)',
         radius: 480,
-        flicker: true,
-        storyPrompt: 'Karanlık bir odada tek başına yanan yalnız bir mum hakkında atmosferik, kısa bir gece masalı anlat (maksimum 3 cümle).'
+        flicker: true
       },
-      fener: {
-        name: 'Fener',
+
+      lantern: {
+        name: 'Lantern',
         color: 'rgba(253, 224, 71, 0.92)',
         radius: 650,
-        flicker: false,
-        storyPrompt: 'Fırtınalı bir gecede elindeki fenerle kayıp tüneli arayan bir gezginin kısa hikayesini anlat (maksimum 3 cümle).'
+        flicker: false
       },
-      ampul: {
-        name: 'Ampul',
+
+      bulb: {
+        name: 'Bulb',
         color: 'rgba(254, 240, 138, 0.95)',
         radius: 750,
-        flicker: false,
-        storyPrompt: 'Gece yarısı eski bir çalışma odasında aniden yanan bir ampul ve akla gelen dahi düşünce hakkında kısa bir anlatı (maksimum 3 cümle).'
+        flicker: false
       },
-      kamp_atesi: {
-        name: 'Kamp Ateşi',
+
+      campfire: {
+        name: 'Campfire',
         color: 'rgba(239, 68, 68, 0.9)',
         radius: 700,
-        flicker: true,
-        storyPrompt: 'Yıldızlı bir gecede ormanda çıtırdayan kamp ateşinin başında anlatılan gizemli bir efsane (maksimum 3 cümle).'
+        flicker: true
       }
+
     };
 
-    // State Değişkenleri
-    let activeType = 'mum';
+
+    /* Application State */
+    let activeType = 'candle';
     let isHolding = false;
     let isLocked = false;
     let isHoveringLock = false;
-    let currentStoryText = "";
-    let currentAudioUrl = null;
-    let activeAudioElement = null;
 
-    // DOM Elemanları
-    const ambientLight = document.getElementById('ambient-light');
-    const roomBg = document.getElementById('room-bg');
-    const lightObject = document.getElementById('light-object');
-    const graphicContainer = document.getElementById('graphic-container');
-    const lockZone = document.getElementById('lock-zone');
-    const lockIcon = document.getElementById('lock-icon');
-    const lockedBadge = document.getElementById('locked-badge');
-    const infoBanner = document.getElementById('info-banner');
-    const navBtns = document.querySelectorAll('.nav-btn');
 
-    // AI Modal DOM Elemanları
-    const aiToggleBtn = document.getElementById('ai-toggle-btn');
-    const aiModal = document.getElementById('ai-modal');
-    const closeAiModal = document.getElementById('close-ai-modal');
-    const tabBgBtn = document.getElementById('tab-bg-btn');
-    const tabStoryBtn = document.getElementById('tab-story-btn');
-    const tabOracleBtn = document.getElementById('tab-oracle-btn');
-    const tabBgContent = document.getElementById('tab-bg-content');
-    const tabStoryContent = document.getElementById('tab-story-content');
-    const tabOracleContent = document.getElementById('tab-oracle-btn-content');
-    const aiLoading = document.getElementById('ai-loading');
-    const aiLoadingText = document.getElementById('ai-loading-text');
+    /* DOM Elements */
+    const ambientLight =
+      document.getElementById('ambient-light');
 
-    // Exponential Backoff API Wrapper
-    async function fetchWithRetry(url, options, maxRetries = 3) {
-      let delay = 1000;
-      for (let i = 0; i < maxRetries; i++) {
-        try {
-          const response = await fetch(url, options);
-          if (response.status === 429) {
-            await new Promise(r => setTimeout(r, delay));
-            delay *= 2;
-            continue;
-          }
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return await response.json();
-        } catch (err) {
-          if (i === maxRetries - 1) throw err;
-          await new Promise(r => setTimeout(r, delay));
-          delay *= 2;
-        }
-      }
-    }
+    const roomBg =
+      document.getElementById('room-bg');
 
-    // 1. Text Generation with Gemini 3 Flash
-    async function generateTextWithGemini(userQuery, systemPrompt = "Sadece Türkçe dilinde yanıt ver.") {
-      const apiKey = "";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-      
-      const payload = {
-        contents: [{ parts: [{ text: userQuery }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] }
-      };
+    const lightObject =
+      document.getElementById('light-object');
 
-      const result = await fetchWithRetry(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+    const graphicContainer =
+      document.getElementById('graphic-container');
 
-      return result?.candidates?.[0]?.content?.parts?.[0]?.text || "Yanıt alınamadı.";
-    }
+    const lockZone =
+      document.getElementById('lock-zone');
 
-    // 2. TTS Generation with Gemini 2.5 Flash TTS
-    function pcmToWav(pcm16Array, sampleRate) {
-      const numChannels = 1;
-      const bitsPerSample = 16;
-      const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
-      const blockAlign = numChannels * (bitsPerSample / 8);
-      const dataSize = pcm16Array.length * 2;
-      const buffer = new ArrayBuffer(44 + dataSize);
-      const view = new DataView(buffer);
+    const lockIcon =
+      document.getElementById('lock-icon');
 
-      function writeString(offset, string) {
-        for (let i = 0; i < string.length; i++) {
-          view.setUint8(offset + i, string.charCodeAt(i));
-        }
-      }
+    const lockedBadge =
+      document.getElementById('locked-badge');
 
-      writeString(0, 'RIFF');
-      view.setUint32(4, 36 + dataSize, true);
-      writeString(8, 'WAVE');
-      writeString(12, 'fmt ');
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, numChannels, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, byteRate, true);
-      view.setUint16(32, blockAlign, true);
-      view.setUint16(34, bitsPerSample, true);
-      writeString(36, 'data');
-      view.setUint32(40, dataSize, true);
+    const infoBanner =
+      document.getElementById('info-banner');
 
-      let offset = 44;
-      for (let i = 0; i < pcm16Array.length; i++, offset += 2) {
-        view.setInt16(offset, pcm16Array[i], true);
-      }
+    const navBtns =
+      document.querySelectorAll('.nav-btn');
 
-      return new Blob([buffer], { type: 'audio/wav' });
-    }
 
-    function base64ToArrayBuffer(base64) {
-      const binaryString = atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      return bytes.buffer;
-    }
-
-    async function generateTTSWithGemini(text) {
-      const apiKey = "";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-
-      const payload = {
-        contents: [{
-          parts: [{ text: `Say in a warm, comfortable atmospheric tone in Turkish: ${text}` }]
-        }],
-        generationConfig: {
-          responseModalities: ["AUDIO"],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: "Sulafat" }
-            }
-          }
-        }
-      };
-
-      const result = await fetchWithRetry(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const part = result?.candidates?.[0]?.content?.parts?.[0];
-      const base64Data = part?.inlineData?.data;
-      const mimeType = part?.inlineData?.mimeType || "";
-
-      if (!base64Data) throw new Error("Ses üretilemedi.");
-
-      let sampleRate = 24000;
-      const match = mimeType.match(/rate=(\d+)/);
-      if (match && match[1]) {
-        sampleRate = parseInt(match[1], 10);
-      }
-
-      const pcmBuffer = base64ToArrayBuffer(base64Data);
-      const pcm16 = new Int16Array(pcmBuffer);
-      const wavBlob = pcmToWav(pcm16, sampleRate);
-      return URL.createObjectURL(wavBlob);
-    }
-
-    // 3. Image Generation with Imagen 4.0
-    async function generateBackgroundWithImagen(promptText) {
-      const apiKey = "";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
-
-      const payload = {
-        instances: [{ prompt: promptText }],
-        parameters: { sampleCount: 1 }
-      };
-
-      const result = await fetchWithRetry(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
-        return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
-      }
-      throw new Error("Görsel oluşturulamadı.");
-    }
-
-    // 1. Üst Menüden Işık Tipi Değiştirme
+    /* Change Light Source */
     navBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
+
+      btn.addEventListener('click', (event) => {
+
+        event.stopPropagation();
+
         const type = btn.dataset.type;
-        if (type === activeType) return;
+
+        if (type === activeType) {
+          return;
+        }
 
         turnOffLight();
 
-        navBtns.forEach(b => b.classList.remove('active'));
+        navBtns.forEach(button => {
+          button.classList.remove('active');
+        });
+
         btn.classList.add('active');
 
-        document.querySelectorAll('#graphic-container > svg').forEach(svg => {
-          svg.classList.add('hidden');
-        });
-        document.getElementById(`svg-${type}`).classList.remove('hidden');
+        document
+          .querySelectorAll('#graphic-container > svg')
+          .forEach(svg => {
+            svg.classList.add('hidden');
+          });
+
+        document
+          .getElementById(`svg-${type}`)
+          .classList.remove('hidden');
 
         activeType = type;
+
       });
+
     });
 
-    // 2. Nesneye Basma / Dokunma
-    lightObject.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
+
+    /* Press and Hold Object */
+    lightObject.addEventListener('pointerdown', (event) => {
+
+      event.stopPropagation();
 
       isHolding = true;
       isLocked = false;
 
       lockZone.classList.add('visible');
       lockZone.classList.remove('hovered');
+
       lockIcon.textContent = '🔓';
 
       turnOnLight();
 
-      infoBanner.textContent = "Sabitlemek için kilit (🔓) simgesine doğru sürükleyin";
-      infoBanner.style.color = "#f59e0b";
+      infoBanner.textContent =
+        'Drag toward the lock icon to lock the light';
+
+      infoBanner.style.color = '#f59e0b';
+
     });
 
-    // 3. Sürükleme / Dokunmatik ve Fare Takibi
-    window.addEventListener('pointermove', (e) => {
-      if (!isHolding || isLocked) return;
 
-      const rect = lockZone.getBoundingClientRect();
+    /* Pointer Movement */
+    window.addEventListener('pointermove', (event) => {
+
+      if (!isHolding || isLocked) {
+        return;
+      }
+
+      const rect =
+        lockZone.getBoundingClientRect();
+
       const padding = 25;
 
-      if (
-        e.clientX >= rect.left - padding && e.clientX <= rect.right + padding &&
-        e.clientY >= rect.top - padding && e.clientY <= rect.bottom + padding
-      ) {
+      const inside =
+        event.clientX >= rect.left - padding &&
+        event.clientX <= rect.right + padding &&
+        event.clientY >= rect.top - padding &&
+        event.clientY <= rect.bottom + padding;
+
+      if (inside) {
+
         if (!isHoveringLock) {
+
           isHoveringLock = true;
+
           lockZone.classList.add('hovered');
+
           lockIcon.textContent = '🔒';
+
         }
+
       } else {
+
         if (isHoveringLock) {
+
           isHoveringLock = false;
+
           lockZone.classList.remove('hovered');
+
           lockIcon.textContent = '🔓';
+
         }
+
       }
+
     });
 
-    // 4. Bırakma (Pointer Up)
+
+    /* Pointer Release */
     window.addEventListener('pointerup', () => {
-      if (!isHolding) return;
+
+      if (!isHolding) {
+        return;
+      }
 
       if (isHoveringLock) {
+
         isLocked = true;
+
         lockedBadge.classList.add('show');
-        lockZone.classList.remove('visible', 'hovered');
-        
-        infoBanner.textContent = "Işık Sabitlendi 🔒 (Söndürmek için ekrana tıklayın)";
-        infoBanner.style.color = "#10b981";
+
+        lockZone.classList.remove(
+          'visible',
+          'hovered'
+        );
+
+        infoBanner.textContent =
+          'Light locked 🔒 — click anywhere to turn it off';
+
+        infoBanner.style.color = '#10b981';
+
       } else {
+
         turnOffLight();
+
       }
 
       isHolding = false;
       isHoveringLock = false;
+
     });
 
-    // 5. Boş Ekrana Tıklandığında Söndürme
-    window.addEventListener('pointerdown', (e) => {
-      if (!e.target.closest('#light-object') && !e.target.closest('header') && !e.target.closest('#ai-modal')) {
+
+    /* Turn Off When Clicking Outside */
+    window.addEventListener('pointerdown', (event) => {
+
+      if (
+        !event.target.closest('#light-object') &&
+        !event.target.closest('header')
+      ) {
         turnOffLight();
       }
+
     });
 
-    function turnOnLight() {
-      const config = LIGHT_CONFIGS[activeType];
 
-      graphicContainer.classList.remove('opacity-40', 'grayscale');
-      graphicContainer.classList.add('opacity-100');
+    /* Turn Light On */
+    function turnOnLight() {
+
+      const config =
+        LIGHT_CONFIGS[activeType];
+
+      graphicContainer.classList.remove(
+        'opacity-40',
+        'grayscale'
+      );
+
+      graphicContainer.classList.add(
+        'opacity-100'
+      );
+
 
       if (config.flicker) {
-        graphicContainer.classList.add('flicker-active');
+
+        graphicContainer.classList.add(
+          'flicker-active'
+        );
+
       }
 
-      if (activeType === 'fener') {
-        const beam = document.querySelector('#svg-fener .light-beam');
-        if (beam) beam.classList.remove('opacity-0');
+
+      /* Enable Lantern Beam */
+      if (activeType === 'lantern') {
+
+        const beam =
+          document.querySelector(
+            '#svg-lantern .light-beam'
+          );
+
+        if (beam) {
+          beam.classList.remove('opacity-0');
+        }
+
       }
 
-      const rect = graphicContainer.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
 
-      ambientLight.style.background = `radial-gradient(circle ${config.radius}px at ${x}px ${y}px, ${config.color} 0%, rgba(2, 2, 4, 0.98) 100%)`;
-      
-      // AI Arka Planı Işık Yandığında Hafifçe Belirginleştir
-      roomBg.style.opacity = '0.55';
+      /* Calculate Light Position */
+      const rect =
+        graphicContainer.getBoundingClientRect();
+
+      const x =
+        rect.left + rect.width / 2;
+
+      const y =
+        rect.top + rect.height / 2;
+
+
+      /* Apply Radial Light */
+      ambientLight.style.background =
+        `radial-gradient(
+          circle ${config.radius}px
+          at ${x}px ${y}px,
+          ${config.color} 0%,
+          rgba(2, 2, 4, 0.98) 100%
+        )`;
+
     }
 
+
+    /* Turn Light Off */
     function turnOffLight() {
+
       isHolding = false;
       isLocked = false;
       isHoveringLock = false;
 
-      graphicContainer.classList.add('opacity-40', 'grayscale');
-      graphicContainer.classList.remove('opacity-100', 'flicker-active');
 
-      if (activeType === 'fener') {
-        const beam = document.querySelector('#svg-fener .light-beam');
-        if (beam) beam.classList.add('opacity-0');
-      }
+      graphicContainer.classList.add(
+        'opacity-40',
+        'grayscale'
+      );
 
-      lockZone.classList.remove('visible', 'hovered');
-      lockIcon.textContent = '🔓';
-      lockedBadge.classList.remove('show');
+      graphicContainer.classList.remove(
+        'opacity-100',
+        'flicker-active'
+      );
 
-      ambientLight.style.background = '#020204';
-      roomBg.style.opacity = '0.25';
 
-      infoBanner.textContent = "Işığı yakmak için nesneye basılı tutun";
-      infoBanner.style.color = "#9ca3af";
-    }
+      /* Disable Lantern Beam */
+      if (activeType === 'lantern') {
 
-    // AI Modal Navigation Logic
-    aiToggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      aiModal.classList.remove('hidden');
-    });
+        const beam =
+          document.querySelector(
+            '#svg-lantern .light-beam'
+          );
 
-    closeAiModal.addEventListener('click', () => {
-      aiModal.classList.add('hidden');
-    });
-
-    // Tab Switches
-    function switchTab(activeBtn, showContent) {
-      [tabBgBtn, tabStoryBtn, tabOracleBtn].forEach(btn => {
-        btn.classList.remove('bg-amber-500', 'text-black');
-        btn.classList.add('text-neutral-400');
-      });
-      activeBtn.classList.add('bg-amber-500', 'text-black');
-      activeBtn.classList.remove('text-neutral-400');
-
-      [tabBgContent, tabStoryContent, tabOracleContent].forEach(content => content.classList.add('hidden'));
-      showContent.classList.remove('hidden');
-    }
-
-    tabBgBtn.addEventListener('click', () => switchTab(tabBgBtn, tabBgContent));
-    tabStoryBtn.addEventListener('click', () => switchTab(tabStoryBtn, tabStoryContent));
-    tabOracleBtn.addEventListener('click', () => switchTab(tabOracleBtn, tabOracleContent));
-
-    // Helper: Show Loading State
-    function setLoading(show, text = "Gemini yanıt hazırlıyor...") {
-      if (show) {
-        aiLoadingText.textContent = text;
-        aiLoading.classList.remove('hidden');
-      } else {
-        aiLoading.classList.add('hidden');
-      }
-    }
-
-    // 1. AI Arka Plan Oluşturma Handlers
-    document.querySelectorAll('.bg-preset-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const prompt = btn.dataset.prompt;
-        await triggerBgGeneration(prompt);
-      });
-    });
-
-    document.getElementById('generate-bg-btn').addEventListener('click', async () => {
-      const customInput = document.getElementById('custom-bg-input').value.trim();
-      if (!customInput) return;
-      await triggerBgGeneration(customInput);
-    });
-
-    async function triggerBgGeneration(prompt) {
-      try {
-        setLoading(true, "Oda arka planı Imagen 4.0 ile çiziliyor...");
-        const imgUrl = await generateBackgroundWithImagen(prompt);
-        roomBg.style.backgroundImage = `url('${imgUrl}')`;
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        infoBanner.textContent = "Arka plan oluşturulurken bir hata oluştu.";
-      }
-    }
-
-    // 2. Gece Hikayesi Handlers
-    const generateStoryBtn = document.getElementById('generate-story-btn');
-    const storyDisplayArea = document.getElementById('story-display-area');
-    const ttsControls = document.getElementById('tts-controls');
-    const playTtsBtn = document.getElementById('play-tts-btn');
-    const ttsStatus = document.getElementById('tts-status');
-
-    generateStoryBtn.addEventListener('click', async () => {
-      try {
-        setLoading(true, `${LIGHT_CONFIGS[activeType].name} için hikaye yazılıyor...`);
-        const config = LIGHT_CONFIGS[activeType];
-        
-        const story = await generateTextWithGemini(
-          config.storyPrompt,
-          "Sen sürükleyici ve romantik bir gece hikayecisisin. Kısa, etkileyici Türkçe hikayeler anlatırsın."
-        );
-
-        currentStoryText = story;
-        storyDisplayArea.textContent = story;
-        storyDisplayArea.classList.remove('italic', 'text-neutral-500');
-        storyDisplayArea.classList.add('text-amber-100');
-        
-        ttsControls.classList.remove('hidden');
-        currentAudioUrl = null; // reset cached audio
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        storyDisplayArea.textContent = "Hikaye oluşturulamadı, tekrar deneyin.";
-      }
-    });
-
-    playTtsBtn.addEventListener('click', async () => {
-      if (!currentStoryText) return;
-
-      if (activeAudioElement && !activeAudioElement.paused) {
-        activeAudioElement.pause();
-        document.getElementById('play-icon').textContent = '▶';
-        document.getElementById('play-text').textContent = 'Devam Et';
-        return;
-      }
-
-      if (activeAudioElement && activeAudioElement.paused && activeAudioElement.currentTime > 0) {
-        activeAudioElement.play();
-        document.getElementById('play-icon').textContent = '⏸';
-        document.getElementById('play-text').textContent = 'Duraklat';
-        return;
-      }
-
-      try {
-        if (!currentAudioUrl) {
-          ttsStatus.textContent = "Ses üretiliyor...";
-          currentAudioUrl = await generateTTSWithGemini(currentStoryText);
+        if (beam) {
+          beam.classList.add('opacity-0');
         }
 
-        activeAudioElement = new Audio(currentAudioUrl);
-        activeAudioElement.play();
-        
-        document.getElementById('play-icon').textContent = '⏸';
-        document.getElementById('play-text').textContent = 'Duraklat';
-        ttsStatus.textContent = "Oynatılıyor...";
-
-        activeAudioElement.onended = () => {
-          document.getElementById('play-icon').textContent = '▶';
-          document.getElementById('play-text').textContent = 'Tekrar Dinle';
-          ttsStatus.textContent = "";
-        };
-      } catch (err) {
-        ttsStatus.textContent = "Ses oynatılamadı.";
       }
-    });
 
-    // 3. Işık Kahini Handlers
-    const askOracleBtn = document.getElementById('ask-oracle-btn');
-    const oracleInput = document.getElementById('oracle-input');
-    const chatHistory = document.getElementById('chat-history');
 
-    askOracleBtn.addEventListener('click', async () => {
-      const query = oracleInput.value.trim();
-      if (!query) return;
+      lockZone.classList.remove(
+        'visible',
+        'hovered'
+      );
 
-      appendChatMessage("Sen", query, "text-white");
-      oracleInput.value = "";
+      lockIcon.textContent = '🔓';
 
-      try {
-        setLoading(true, "Işık Kahini düşünüyor...");
-        const answer = await generateTextWithGemini(
-          query,
-          "Sen bilgili ve mistik bir 'Işık Kahini'sin. Işık, ateş, fizik ve karanlık hakkındaki sorulara Türkçe kısa ve şiirsel yanıtlar ver."
-        );
+      lockedBadge.classList.remove('show');
 
-        setLoading(false);
-        appendChatMessage("Kahine", answer, "text-amber-300");
-      } catch (err) {
-        setLoading(false);
-        appendChatMessage("Kahine", "Gizemli güçler bir hata oluşturdu.", "text-red-400");
-      }
-    });
 
-    function appendChatMessage(sender, text, colorClass) {
-      const msg = document.createElement('div');
-      msg.className = "p-2 rounded-lg bg-neutral-900 border border-neutral-800 space-y-1";
-      msg.innerHTML = `<span class="font-bold text-[11px] block text-neutral-400">${sender}:</span><p class="${colorClass}">${text}</p>`;
-      chatHistory.appendChild(msg);
-      chatHistory.scrollTop = chatHistory.scrollHeight;
+      /* Reset Lighting */
+      ambientLight.style.background =
+        '#020204';
+
+
+      infoBanner.textContent =
+        'Press and hold the object to turn on the light';
+
+      infoBanner.style.color =
+        '#9ca3af';
+
     }
+
   </script>
+
 </body>
 </html>
